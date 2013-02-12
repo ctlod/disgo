@@ -10,14 +10,21 @@ type StartPanel struct {
 	Input chan termbox.Event
 }
 
-func NewStartPanel (in chan termbox.Event) *StartPanel {
+func NewStartPanel () *StartPanel {
 	sP := new(StartPanel)
   sP.AnyKeyColor = termbox.ColorWhite
 	sP.GuiTicker = time.NewTicker(500 * time.Millisecond)
 	sP.TitleStr = "Dwarves in Space!"
 	sP.AttrStr = "A tribute to Dwarf Fortress"
 	sP.AckStr = "Dedicated to Emma, for her patience."
-	sP.Input = in
+	sP.Input = make(chan termbox.Event, 100)
+
+  go func () {
+    for {
+      sP.Input<-termbox.PollEvent()
+    }
+  } ()
+
 	return sP
 }
 
@@ -60,3 +67,11 @@ func (sP* StartPanel) Draw () {
 		sP.AnyKeyColor = termbox.ColorWhite
 	}
 }
+
+func Print(x, y int, str string, fg, bg termbox.Attribute) {
+  runes := []rune(str)
+  for i, r := range runes {
+    termbox.SetCell(x + i, y, r, fg, bg)
+  }
+}
+
